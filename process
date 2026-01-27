@@ -1,4 +1,7 @@
 ﻿# EcommerceApp
 
 inside vi .env 
+
+
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
+
