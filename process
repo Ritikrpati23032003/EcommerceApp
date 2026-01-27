@@ -1,7 +1,15 @@
 ﻿# EcommerceApp
 
 inside vi .env 
-
-
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
+
+
+🌍 Public IP + Port Mapping Service	URL to Access	Purpose
+
+🟢 Frontend (User App)	http://<publicIP>:5173    Customer website
+🟣 Seller App	          http://<publicIP>:5174    Seller dashboard
+🔵 Backend API	        http://<publicIP>:4500    REST APIs
+🟡 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
+🔴 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
