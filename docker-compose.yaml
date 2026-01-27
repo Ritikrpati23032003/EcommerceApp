@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   mongo:
-    image: mongo
+    image: mongo:7
     container_name: mongo
     restart: always
     ports:
@@ -28,7 +28,7 @@ services:
       - mongo
 
   backend:
-    build: ./backend
+    build: ./Backend
     container_name: backend
     restart: always
     ports:
@@ -37,17 +37,19 @@ services:
       - mongo
     environment:
       - MONGODB_URI=mongodb://admin:7325APM@mongo:27017/ecommerce?authSource=admin
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
 
   frontend:
-    build: ./frontend
+    build: ./Frontend
     container_name: frontend
     restart: always
     ports:
       - "5173:80"
     depends_on:
       - backend
+
   seller:
-    build: ./seller
+    build: ./Seller
     container_name: seller
     restart: always
     ports:
