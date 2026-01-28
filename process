@@ -21,6 +21,8 @@ vi .env
 VITE_API_URL=http://<publicIp>:4500
 
 
+docker compose build
+docker compose up -d
 
 🌍 Public IP + Port Mapping Service	URL to Access	Purpose
 
@@ -29,6 +31,7 @@ VITE_API_URL=http://<publicIp>:4500
 🔵 Backend API	        http://<publicIP>:4500    REST APIs
 🟡 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
 🔴 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
 
 
