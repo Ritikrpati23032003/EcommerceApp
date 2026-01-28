@@ -1,4 +1,6 @@
-﻿# EcommerceApp
+# EcommerceApp
+
+#!/bin/bash
 sudo yum update -y
 sudo yum install docker -y
 sudo systemctl start docker
@@ -11,34 +13,73 @@ sudo usermod -aG docker $USER
 newgrp docker
 
 
+------Frontend configuration--------
 
-
-inside vi .env 
-STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
-
-#Frontend
 cd frontend
+
 vi .env
 VITE_API_URL=http://<publicIp>:4500
 
+--------Backend Configuration--------
+STRIPE_SECRET_KEY is the password that allows your backend to talk to Stripe’s bank.
+How To create:
+1. Go to Stripe 
+👉 https://dashboard.stripe.com/
+
+2. Switch to Test mode
+Top-right corner → turn ON “Test mode” 🟢
+
+3. Open API Keys
+   Developers → API keys
+   Copy Secret Key (start from sk..)
+   ex-  sk_test_
+
+copy key paste in your local
+
+------------JWT-KEy---------------
+JWT_SECRET is used to lock and unlock user identity.
+Stripe key = money permission
+JWT key = login permission
+
+For create a JWT KEY Run:---
+
+openssl rand -hex 32
+
+o/p:-5889......
+copy it
+
 #Backend
-Backend>> config change
-publicIp-->your IP
+vi .env
+
+JWT_SECRET=<jwt key>				          #paste your jwt key 
+JWT_REFRESH_SECRET=another_random_value
+STRIPE_SECRET_KEY=<paste Sk-key>  		# paste Your sk-key
+
+cd Backend>> config 
+change publicIp-->your IP
 & 
 at index.js change IP-->Public Ip
 
 
+TO RUN:- Docker Compose
 
 docker compose build
 docker compose up -d
 
-🌍 Public IP + Port Mapping Service	URL to Access	Purpose
+check key--
 
-🟢 Frontend (User App)	http://<publicIP>:5173    Customer website
-🟣 Seller App	          http://<publicIP>:5174    Seller dashboard
-🔵 Backend API	        http://<publicIP>:4500    REST APIs
-🟡 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
-🔴 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+docker exec -it backend sh
+echo $STRIPE_SECRET_KEY
+
+
+
+Frontend (User App)	http://<publicIP>:5173    Customer website
+Seller App	        http://<publicIP>:5174    Seller dashboard
+Backend API	        http://<publicIP>:4500    REST APIs
+Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
+MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
+
 
 
 
