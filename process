@@ -13,7 +13,7 @@ sudo usermod -aG docker $USER
 newgrp docker
 
 
-------Frontend configuration--------
+------Frontend & Seller configuration--------
 
 cd frontend
 
@@ -68,6 +68,12 @@ docker compose up -d
 or
 docker compose up -d --build     #to build run all
 
+To delete docker
+docker rm -f $(docker ps -aq)
+docker rmi -f $(docker images -aq)
+docker volume rm $(docker volume ls -q)
+
+
 check key--
 
 docker exec -it backend sh
@@ -80,6 +86,7 @@ Seller App	        http://<publicIP>:5174    Seller dashboard
 Backend API	        http://<publicIP>:4500    REST APIs
 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
 
 
