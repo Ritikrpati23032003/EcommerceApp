@@ -1,4 +1,17 @@
 ﻿# EcommerceApp
+sudo yum update -y
+sudo yum install docker -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo mkdir -p /usr/local/lib/docker/cli-plugins
+sudo curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 \
+-o /usr/local/lib/docker/cli-plugins/docker-compose
+sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+sudo usermod -aG docker $USER
+newgrp docker
+
+
+
 
 inside vi .env 
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
@@ -16,6 +29,7 @@ VITE_API_URL=http://<publicIp>:4500
 🔵 Backend API	        http://<publicIP>:4500    REST APIs
 🟡 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
 🔴 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
 
 
