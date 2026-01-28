@@ -65,6 +65,8 @@ TO RUN:- Docker Compose
 
 docker compose build
 docker compose up -d
+or
+docker compose up -d --build     #to build run all
 
 check key--
 
@@ -78,6 +80,7 @@ Seller App	        http://<publicIP>:5174    Seller dashboard
 Backend API	        http://<publicIP>:4500    REST APIs
 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
 
 
