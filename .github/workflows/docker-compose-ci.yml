@@ -1,4 +1,4 @@
-name: Docker Compose on Server
+name: Deploy Docker Compose to Server
 
 on:
   push:
@@ -10,31 +10,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout source code
+      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Configure SSH access
+      # 2️⃣ Setup SSH (CORRECT WAY)
       - name: Setup SSH
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
 
-      # Step 3: Copy project files to server
+      # 3️⃣ Copy project to server
       - name: Copy project to server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
           rsync -avz --delete \
             --exclude=".git" \
             --exclude="node_modules" \
             ./ \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/EcommerceApp
+            $SERVER_USER@$SERVER_HOST:/home/$SERVER_USER/EcommerceApp
 
-      # Step 4: Build images & run containers ON SERVER
-      - name: Build and run Docker Compose on server
+      # 4️⃣ Build image & run container ON SERVER
+      - name: Run Docker Compose on server
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
         run: |
-          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+          ssh $SERVER_USER@$SERVER_HOST << EOF
             set -e
             cd ~/EcommerceApp
 
