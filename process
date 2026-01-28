@@ -13,14 +13,15 @@ sudo usermod -aG docker $USER
 newgrp docker
 
 
-------Frontend & Seller configuration--------
+#------Frontend & Seller configuration--------#
 
 cd frontend
 
 vi .env
 VITE_API_URL=http://<publicIp>:4500
 
---------Backend Configuration--------
+#--------Backend Configuration--------#
+
 STRIPE_SECRET_KEY is the password that allows your backend to talk to Stripe’s bank.
 How To create:
 1. Go to Stripe 
@@ -36,7 +37,7 @@ Top-right corner → turn ON “Test mode” 🟢
 
 copy key paste in your local
 
-------------JWT-KEy---------------
+#------------JWT-KEy---------------#
 JWT_SECRET is used to lock and unlock user identity.
 Stripe key = money permission
 JWT key = login permission
@@ -48,17 +49,17 @@ openssl rand -hex 32
 o/p:-5889......
 copy it
 
-#Backend
+#-----Backend-----#
 vi .env
 
 JWT_SECRET=<jwt key>				          #paste your jwt key 
 JWT_REFRESH_SECRET=another_random_value
 STRIPE_SECRET_KEY=<paste Sk-key>  		# paste Your sk-key
 
+FRONTEND_URLS=http://54.226.153.201:5173,http://54.226.153.201:5174   #<---change ur PublicIP---->
+
 cd Backend>> config 
 change publicIp-->your IP
-& 
-at index.js change IP-->Public Ip
 
 
 TO RUN:- Docker Compose
@@ -86,6 +87,7 @@ Seller App	        http://<publicIP>:5174    Seller dashboard
 Backend API	        http://<publicIP>:4500    REST APIs
 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
 
 
