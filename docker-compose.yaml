@@ -5,6 +5,8 @@ services:
     image: mongo:7
     container_name: mongo
     restart: always
+    ports:
+      - "27017:27017"
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: 7325APM
@@ -34,9 +36,10 @@ services:
     depends_on:
       - mongo
     environment:
-      MONGODB_URI: mongodb://admin:7325APM@mongo:27017/ecommerce?authSource=admin
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      JWT_SECRET: ${JWT_SECRET}
+      - MONGODB_URI=mongodb://admin:7325APM@mongo:27017/ecommerce?authSource=admin
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+
 
   frontend:
     build: ./Frontend
