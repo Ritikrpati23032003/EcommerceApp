@@ -38,6 +38,7 @@ services:
     environment:
       - MONGODB_URI=mongodb://admin:7325APM@mongo:27017/ecommerce?authSource=admin
       - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - JWT_SECRET: ${JWT_SECRET}
 
   frontend:
     build: ./Frontend
