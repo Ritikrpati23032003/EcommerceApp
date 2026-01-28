@@ -1,4 +1,4 @@
-name: Deploy Docker Compose to Server
+name: Deploy Docker Compose to EC2
 
 on:
   push:
@@ -14,37 +14,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup SSH (CORRECT WAY)
+      # 2️⃣ Setup SSH (FIXED SECRET NAMES)
       - name: Setup SSH
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
+          echo "$EC2_SSH_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$SERVER_HOST" >> ~/.ssh/known_hosts
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
-      # 3️⃣ Copy project to server
-      - name: Copy project to server
+      # 3️⃣ Copy project to EC2
+      - name: Copy project to EC2
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
         run: |
           rsync -avz --delete \
             --exclude=".git" \
             --exclude="node_modules" \
             ./ \
-            $SERVER_USER@$SERVER_HOST:/home/$SERVER_USER/EcommerceApp
+            $EC2_USER@$EC2_HOST:/home/$EC2_USER/EcommerceApp
 
-      # 4️⃣ Build image & run container ON SERVER
-      - name: Run Docker Compose on server
+      # 4️⃣ Build & run containers on EC2
+      - name: Run Docker Compose on EC2
         env:
-          SERVER_HOST: ${{ secrets.SERVER_HOST }}
-          SERVER_USER: ${{ secrets.SERVER_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
         run: |
-          ssh $SERVER_USER@$SERVER_HOST << EOF
+          ssh $EC2_USER@$EC2_HOST << EOF
             set -e
             cd ~/EcommerceApp
 
