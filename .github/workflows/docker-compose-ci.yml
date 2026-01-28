@@ -10,11 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Setup SSH (FIXED SECRET NAMES)
       - name: Setup SSH
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -26,7 +24,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
 
-      # 3️⃣ Copy project to EC2
       - name: Copy project to EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -38,8 +35,7 @@ jobs:
             ./ \
             $EC2_USER@$EC2_HOST:/home/$EC2_USER/EcommerceApp
 
-      # 4️⃣ Build & run containers on EC2
-      - name: Run Docker Compose on EC2
+      - name: Build & Run Docker Containers on EC2
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -48,9 +44,9 @@ jobs:
             set -e
             cd ~/EcommerceApp
 
-            docker compose down
-            docker compose build
-            docker compose up -d
+            sudo docker compose down
+            sudo docker compose build
+            sudo docker compose up -d
 
-            docker compose ps
+            sudo docker compose ps
           EOF
