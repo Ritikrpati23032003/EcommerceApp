@@ -16,9 +16,17 @@ newgrp docker
 inside vi .env 
 STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxxxxxxx
 
+#Frontend
 cd frontend
 vi .env
 VITE_API_URL=http://<publicIp>:4500
+
+#Backend
+Backend>> config change
+publicIp-->your IP
+& 
+at index.js change IP-->Public Ip
+
 
 
 docker compose build
@@ -31,6 +39,7 @@ docker compose up -d
 🔵 Backend API	        http://<publicIP>:4500    REST APIs
 🟡 Mongo Express	      http://<publicIP>:8081    MongoDB admin UI
 🔴 MongoDB	            <publicIP>:27017	        Database (NOT for browser)
+
 
 
 
