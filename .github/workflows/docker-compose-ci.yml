@@ -1,48 +1,46 @@
-name: Docker Compose CI
+name: Docker Compose on Server
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
-  docker-compose-test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout source code
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Verify Docker
+      # Step 2: Configure SSH access
+      - name: Setup SSH
         run: |
-          docker version
-          docker compose version
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Build Docker images
+      # Step 3: Copy project files to server
+      - name: Copy project to server
         run: |
-          docker compose build
+          rsync -avz --delete \
+            --exclude=".git" \
+            --exclude="node_modules" \
+            ./ \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/EcommerceApp
 
-      - name: Start services
+      # Step 4: Build images & run containers ON SERVER
+      - name: Build and run Docker Compose on server
         run: |
-          docker compose up -d
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << EOF
+            set -e
+            cd ~/EcommerceApp
 
-      - name: Wait for MongoDB
-        run: |
-          sleep 15
-          docker logs mongo
+            docker compose down
+            docker compose build
+            docker compose up -d
 
-      - name: Check running containers
-        run: |
-          docker ps
-          docker compose ps
-
-      - name: Stop services
-        if: always()
-        run: |
-          docker compose down -v
+            docker compose ps
+          EOF
