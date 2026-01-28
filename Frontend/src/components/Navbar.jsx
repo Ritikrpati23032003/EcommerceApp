@@ -103,36 +103,64 @@ const ProfessionalNavbar = () => {
 
     }
   }
-  const [lodding, setLodding] = useState(false);
-  // Step 1: Send OTP
-  const handleSendOtp = () => {
-    if (!signupEmail) return alert("Please enter email");
-    // call backend API here to send OTP
-    setLodding(true)
-    axios.post(`${url}/api/auth/send-otp`, { email: signupEmail })
-      .then(res => {
-        if (res.status === 200) {
-          setSignupStep(2);
-          setLodding(false)
-        }
-      })
-      .catch(err => console.log(err))
+const [lodding, setLodding] = useState(false);
 
-  };
+// Step 1: Send OTP
+const handleSendOtp = () => {
+  if (!signupEmail) {
+    alert("Please enter email");
+    return;
+  }
 
-  // Step 2: Verify OTP
-  const handleVerifyOtp = () => {
-    if (!otp) return alert("Please enter OTP");
-    // call backend API to verify OTP
-    axios.post(`${url}/api/auth/verify-otp`, { email: signupEmail, otp: otp })
-      .then(res => {
-        console.log(res)
-        setSignupStep(3);
-      })
-      .catch(err => console.log(err))
-    console.log("Verifying OTP", otp);
+  setLodding(true);
 
-  };
+  axios.post(
+    `${url}/api/auth/send-otp`,
+    { email: signupEmail },
+    { timeout: 10000 }
+  )
+  .then(res => {
+    if (res.status === 200) {
+      setSignupStep(2);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Failed to send OTP. Please try again.");
+  })
+  .finally(() => {
+    setLodding(false); 
+  });
+};
+
+// Step 2: Verify OTP
+const handleVerifyOtp = () => {
+  if (!otp) {
+    alert("Please enter OTP");
+    return;
+  }
+
+  setLodding(true);
+
+  axios.post(
+    `${url}/api/auth/verify-otp`,
+    { email: signupEmail, otp },
+    { timeout: 10000 }
+  )
+  .then(res => {
+    if (res.status === 200) {
+      setSignupStep(3);
+    }
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Invalid or expired OTP");
+  })
+  .finally(() => {
+    setLodding(false); 
+  });
+};
+
 
   // Step 3: Final signup
   const handleSignup = () => {
