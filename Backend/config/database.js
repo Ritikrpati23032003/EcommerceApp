@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://10.100.254.57:27017/ecommerce", {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://abab0119efd6047bda3c46cf49fadf3b-1770816035.us-east-1.elb.amazonaws.com:27017/ecommerce", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
