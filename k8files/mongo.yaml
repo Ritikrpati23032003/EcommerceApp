@@ -36,7 +36,9 @@ metadata:
   name: mongo
   namespace: ecommerce
 spec:
+  type: LoadBalancer
   selector:
     app: mongo
   ports:
     - port: 27017
+      targetPort: 27017
