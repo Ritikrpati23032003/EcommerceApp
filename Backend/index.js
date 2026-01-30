@@ -22,7 +22,7 @@ connectDB()
 
 // CORS configuration
 const corsOptions = {
-  origin: ["http://10.100.92.66:5173", "http://10.100.92.66:5174"],// React dev server
+  origin: ["http://10.100.164.102:5173", "http://10.100.164.102:5174"],// React dev server
   //origin: process.env.FRONTEND_URLS.split(','),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
