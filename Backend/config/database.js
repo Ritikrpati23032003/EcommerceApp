@@ -2,7 +2,7 @@ const mongoose = require("mongoose")
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://18.232.174.160:27017/ecommerce", {
+    const conn = await mongoose.connect(process.env.MONGODB_URI || "mongodb://10.100.254.57:27017/ecommerce", {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
