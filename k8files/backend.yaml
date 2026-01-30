@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-backend:4e34ec8
+          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-backend:9501762
           imagePullPolicy: Always
           ports:
             - containerPort: 4500
