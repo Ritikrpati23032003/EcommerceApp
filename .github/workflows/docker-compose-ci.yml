@@ -1,4 +1,4 @@
-name: Deploy Docker Compose to EC2
+name: Build & Push Images to ECR
 
 on:
   push:
@@ -6,47 +6,70 @@ on:
       - main
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
         run: |
-          mkdir -p ~/.ssh
-          echo "$EC2_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
+          docker login --username AWS --password-stdin \
+          ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
-      - name: Copy project to EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
+      # 🧱 Create ECR Repositories if Not Exists
+      - name: Create ECR Repositories
         run: |
-          rsync -avz --delete \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            ./ \
-            $EC2_USER@$EC2_HOST:/home/$EC2_USER/EcommerceApp
+          for repo in ecommerce-backend ecommerce-frontend ecommerce-seller; do
+            aws ecr describe-repositories --repository-names $repo >/dev/null 2>&1 || \
+            aws ecr create-repository --repository-name $repo
+          done
 
-      - name: Build & Run Docker Containers on EC2
-        env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_USER: ${{ secrets.EC2_USER }}
+      # 🔖 Set Image Tag (Git Commit SHA)
+      - name: Set Image Tag
+        run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      # 🐳 Build & Push Backend
+      - name: Build & Push Backend Image
         run: |
-          ssh $EC2_USER@$EC2_HOST << EOF
-            set -e
-            cd ~/EcommerceApp
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-backend
 
-            sudo docker compose down
-            sudo docker compose build
-            sudo docker compose up -d
+          docker build -t ecommerce-backend ./Backend
+          docker tag ecommerce-backend:latest $IMAGE_URI:latest
+          docker tag ecommerce-backend:latest $IMAGE_URI:${IMAGE_TAG}
 
-            sudo docker compose ps
-          EOF
+          docker push $IMAGE_URI:latest
+          docker push $IMAGE_URI:${IMAGE_TAG}
+
+      # 🐳 Build & Push Frontend
+      - name: Build & Push Frontend Image
+        run: |
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-frontend
+
+          docker build -t ecommerce-frontend ./Frontend
+          docker tag ecommerce-frontend:latest $IMAGE_URI:latest
+          docker tag ecommerce-frontend:latest $IMAGE_URI:${IMAGE_TAG}
+
+          docker push $IMAGE_URI:latest
+          docker push $IMAGE_URI:${IMAGE_TAG}
+
+      # 🐳 Build & Push Seller
+      - name: Build & Push Seller Image
+        run: |
+          IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-seller
+
+          docker build -t ecommerce-seller ./Seller
+          docker tag ecommerce-seller:latest $IMAGE_URI:latest
+          docker tag ecommerce-seller:latest $IMAGE_URI:${IMAGE_TAG}
+
+          docker push $IMAGE_URI:latest
+          docker push $IMAGE_URI:${IMAGE_TAG}
