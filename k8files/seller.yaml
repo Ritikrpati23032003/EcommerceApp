@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: seller
-          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-seller:2e2bad9
+          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-seller:1d64685
           imagePullPolicy: Always
           ports:
             - containerPort: 80
