@@ -99,6 +99,9 @@ curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/
 
 aws eks update-kubeconfig --region us-east-1 --name kuber
 
+kubectl create namespace ecommerce
+
+
 
 
 
