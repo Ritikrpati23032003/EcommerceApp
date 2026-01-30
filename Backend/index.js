@@ -23,11 +23,11 @@ connectDB()
 // CORS configuration
 const corsOptions = {
   //origin: ["http://10.100.164.102:5173", "http://10.100.164.102:5174"],// React dev server
-  //origin: process.env.FRONTEND_URLS.split(','),
-  origin: [
-    "http://ad5ea3d8c966b4fdf902de065406cea2-1744125035.us-east-1.elb.amazonaws.com:5173",
-    "http://a601000447e944dcdbfcebc98fedbd1a-1528839868.us-east-1.elb.amazonaws.com:5174"
-  ],
+  origin: process.env.FRONTEND_URLS.split(','),
+  //origin: [
+   // "http://ad5ea3d8c966b4fdf902de065406cea2-1744125035.us-east-1.elb.amazonaws.com:5173",
+    //"http://a601000447e944dcdbfcebc98fedbd1a-1528839868.us-east-1.elb.amazonaws.com:5174"
+ // ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
