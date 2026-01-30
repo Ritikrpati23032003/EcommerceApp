@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/ecommerce-frontend:latest
+          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
 ---
@@ -29,5 +30,5 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 5173        # External port (like compose)
+    - port: 5173        # External port
       targetPort: 80    # Container port
