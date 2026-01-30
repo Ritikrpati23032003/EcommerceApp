@@ -70,9 +70,10 @@ jobs:
       # 📝 Update Kubernetes YAML files
       - name: Update Kubernetes Manifests
         run: |
-          sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8files/backend.yaml
-          sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8files/frontend.yaml
-          sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8files/seller.yaml
+         sed -i "s|\(ecommerce-frontend:\).*|\1${IMAGE_TAG}|g" k8files/frontend.yaml
+         sed -i "s|\(ecommerce-backend:\).*|\1${IMAGE_TAG}|g" k8files/backend.yaml
+         sed -i "s|\(ecommerce-seller:\).*|\1${IMAGE_TAG}|g" k8files/seller.yaml
+
 
       # 📌 Commit & Push YAML Updates (safe)
       - name: Commit and Push Updated YAMLs
