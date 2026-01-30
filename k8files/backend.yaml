@@ -1,34 +1,37 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: backend
   namespace: ecommerce
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: frontend
+      app: backend
   template:
     metadata:
       labels:
-        app: frontend
+        app: backend
     spec:
       containers:
-        - name: frontend
-          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-frontend:684181e
+        - name: backend
+          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-backend:684181e
           imagePullPolicy: Always
           ports:
-            - containerPort: 80
+            - containerPort: 4500
+          env:
+            - name: MONGODB_URI
+              value: mongodb://admin:7325APM@mongo:27017/ecommerce?authSource=admin
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend
+  name: backend
   namespace: ecommerce
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
-    app: frontend
+    app: backend
   ports:
-    - port: 5173        # External port
-      targetPort: 80    # Container port
+    - port: 4500        # Internal service port
+      targetPort: 4500 # Backend container port
