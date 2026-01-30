@@ -1,4 +1,4 @@
-name: Build & Push Images to ECR
+name: Build & Push Images to ECR + Update YAML
 
 on:
   push:
@@ -13,6 +13,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 🔐 Configure AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -20,13 +21,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      # 🔑 Login to Amazon ECR
       - name: Login to Amazon ECR
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | \
           docker login --username AWS --password-stdin \
           ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
 
-      # 🧱 Create ECR Repositories if Not Exists
+      # 🧱 Create ECR Repositories (if not exists)
       - name: Create ECR Repositories
         run: |
           for repo in ecommerce-backend ecommerce-frontend ecommerce-seller; do
@@ -34,7 +36,7 @@ jobs:
             aws ecr create-repository --repository-name $repo
           done
 
-      # 🔖 Set Image Tag (Git Commit SHA)
+      # 🔖 Set Image Tag
       - name: Set Image Tag
         run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
@@ -44,10 +46,7 @@ jobs:
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-backend
 
           docker build -t ecommerce-backend ./Backend
-          docker tag ecommerce-backend:latest $IMAGE_URI:latest
-          docker tag ecommerce-backend:latest $IMAGE_URI:${IMAGE_TAG}
-
-          docker push $IMAGE_URI:latest
+          docker tag ecommerce-backend $IMAGE_URI:${IMAGE_TAG}
           docker push $IMAGE_URI:${IMAGE_TAG}
 
       # 🐳 Build & Push Frontend
@@ -56,10 +55,7 @@ jobs:
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-frontend
 
           docker build -t ecommerce-frontend ./Frontend
-          docker tag ecommerce-frontend:latest $IMAGE_URI:latest
-          docker tag ecommerce-frontend:latest $IMAGE_URI:${IMAGE_TAG}
-
-          docker push $IMAGE_URI:latest
+          docker tag ecommerce-frontend $IMAGE_URI:${IMAGE_TAG}
           docker push $IMAGE_URI:${IMAGE_TAG}
 
       # 🐳 Build & Push Seller
@@ -68,8 +64,21 @@ jobs:
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-seller
 
           docker build -t ecommerce-seller ./Seller
-          docker tag ecommerce-seller:latest $IMAGE_URI:latest
-          docker tag ecommerce-seller:latest $IMAGE_URI:${IMAGE_TAG}
-
-          docker push $IMAGE_URI:latest
+          docker tag ecommerce-seller $IMAGE_URI:${IMAGE_TAG}
           docker push $IMAGE_URI:${IMAGE_TAG}
+
+      # 📝 Update Kubernetes YAML files
+      - name: Update Kubernetes Manifests
+        run: |
+          sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8s/backend.yaml
+          sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8s/frontend.yaml
+          sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8s/seller.yaml
+
+      # 📌 Commit updated YAMLs
+      - name: Commit YAML Changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add k8s/
+          git commit -m "Update image tags to ${IMAGE_TAG}"
+          git push
