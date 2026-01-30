@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write   # required to push changes back to repo
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -36,7 +39,7 @@ jobs:
             aws ecr create-repository --repository-name $repo
           done
 
-      # 🔖 Set Image Tag
+      # 🔖 Set Image Tag (short git SHA)
       - name: Set Image Tag
         run: echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
@@ -44,7 +47,6 @@ jobs:
       - name: Build & Push Backend Image
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-backend
-
           docker build -t ecommerce-backend ./Backend
           docker tag ecommerce-backend $IMAGE_URI:${IMAGE_TAG}
           docker push $IMAGE_URI:${IMAGE_TAG}
@@ -53,7 +55,6 @@ jobs:
       - name: Build & Push Frontend Image
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-frontend
-
           docker build -t ecommerce-frontend ./Frontend
           docker tag ecommerce-frontend $IMAGE_URI:${IMAGE_TAG}
           docker push $IMAGE_URI:${IMAGE_TAG}
@@ -62,7 +63,6 @@ jobs:
       - name: Build & Push Seller Image
         run: |
           IMAGE_URI=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/ecommerce-seller
-
           docker build -t ecommerce-seller ./Seller
           docker tag ecommerce-seller $IMAGE_URI:${IMAGE_TAG}
           docker push $IMAGE_URI:${IMAGE_TAG}
@@ -74,11 +74,18 @@ jobs:
           sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8files/frontend.yaml
           sed -i "s|IMAGE_TAG|${IMAGE_TAG}|g" k8files/seller.yaml
 
-      # 📌 Commit updated YAMLs
-      - name: Commit YAML Changes
+      # 📌 Commit & Push YAML Updates (safe)
+      - name: Commit and Push Updated YAMLs
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add .
+
+          git add k8files/*.yaml
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
           git commit -m "Update image tags to ${IMAGE_TAG}"
           git push
