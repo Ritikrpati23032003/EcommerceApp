@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-frontend:459acbf
+          image: 301678011164.dkr.ecr.us-east-1.amazonaws.com/ecommerce-frontend:2e2bad9
           imagePullPolicy: Always
           ports:
             - containerPort: 80
